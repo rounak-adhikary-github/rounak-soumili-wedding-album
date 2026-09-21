@@ -1,0 +1,24 @@
+# ---------------------------------------------------------------------------
+# The site ships the compressed copies in assets/photos/ (about 68 MB).
+# The multi-gigabyte originals must NOT be committed — GitHub will reject the
+# push, and GitHub Pages has a soft 1 GB limit for the whole site.
+# Keep the originals wherever you like; just leave them out of the repo.
+# ---------------------------------------------------------------------------
+Bride Side/
+Groom Side/
+
+# local image-processing environment
+.venv/
+__pycache__/
+*.pyc
+
+# dev scratch (headless-browser screenshots, layout probes)
+.preview/
+
+# build logs
+tools/build.log
+
+# photos-data.js is generated from tools/build_gallery.py and IS committed,
+# because that is what the live site loads. manifest.json is a duplicate
+# convenience copy, so it stays out of the repo.
+tools/manifest.json

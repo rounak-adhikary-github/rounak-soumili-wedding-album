@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2b0710">
+<title>শুভ বিবাহ · Our Wedding Album</title>
+<meta name="description" content="A Bengali wedding album — browse the Bride's Side and Groom's Side photo albums and watch the wedding films.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Marcellus&family=Hind+Siliguri:wght@400;500;600;700&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%234a0e1c'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23e8c46a'%3E%E0%A6%B6%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<!-- ============ custom cursor ============ -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <div class="cursor__glow" id="cursorGlow"></div>
+  <div class="cursor__ring" id="cursorRing"><span class="cursor__label" id="cursorLabel"></span></div>
+  <div class="cursor__dot" id="cursorDot"></div>
+</div>
+
+<!-- ============ ornaments (reusable svg symbols) ============ -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="orn-mandala" viewBox="0 0 200 200">
+    <g fill="none" stroke="currentColor" stroke-width="1">
+      <circle cx="100" cy="100" r="96"/><circle cx="100" cy="100" r="88"/>
+      <circle cx="100" cy="100" r="64" stroke-dasharray="2 6"/><circle cx="100" cy="100" r="34"/>
+      <g id="petals">
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(30 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(60 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(90 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(120 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(150 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(180 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(210 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(240 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(270 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(300 100 100)"/>
+        <path d="M100 16c10 22 10 40 0 62-10-22-10-40 0-62Z" transform="rotate(330 100 100)"/>
+      </g>
+      <g id="rays">
+        <path d="M100 66 104 100 100 134 96 100Z" opacity=".7"/>
+        <path d="M100 66 104 100 100 134 96 100Z" opacity=".7" transform="rotate(45 100 100)"/>
+        <path d="M100 66 104 100 100 134 96 100Z" opacity=".7" transform="rotate(90 100 100)"/>
+        <path d="M100 66 104 100 100 134 96 100Z" opacity=".7" transform="rotate(135 100 100)"/>
+      </g>
+    </g>
+  </symbol>
+  <symbol id="orn-divider" viewBox="0 0 320 40">
+    <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+      <path d="M4 20h96M220 20h96" opacity=".75"/>
+      <path d="M112 20c0-7 6-11 13-11s13 5 13 11-6 11-13 11-13-5-13-11Z" opacity=".9"/>
+      <path d="M164 6l8 14-8 14-8-14 8-14Z"/>
+      <path d="M182 20c0-7 6-11 13-11s13 5 13 11-6 11-13 11-13-5-13-11Z" opacity=".9"/>
+      <circle cx="100" cy="20" r="2.4" fill="currentColor" stroke="none"/>
+      <circle cx="220" cy="20" r="2.4" fill="currentColor" stroke="none"/>
+    </g>
+  </symbol>
+  <symbol id="orn-corner" viewBox="0 0 60 60">
+    <g fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round">
+      <path d="M2 2v34M2 2h34"/>
+      <path d="M11 11v18M11 11h18"/>
+      <path d="M24 24c8 0 14-6 14-14"/>
+      <circle cx="30" cy="30" r="2.6" fill="currentColor" stroke="none"/>
+    </g>
+  </symbol>
+  <symbol id="orn-paisley" viewBox="0 0 100 140">
+    <g fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
+      <path d="M50 6c26 0 42 20 42 44 0 34-30 50-46 66C36 100 8 84 8 50 8 26 24 6 50 6Z"/>
+      <path d="M50 26c15 0 24 11 24 25 0 19-17 29-27 38-11-9-27-19-27-38 0-14 9-25 24-25Z" opacity=".7"/>
+      <path d="M50 46c7 0 11 5 11 11 0 9-8 14-13 19-5-5-13-10-13-19 0-6 4-11 11-11Z" opacity=".5"/>
+      <circle cx="50" cy="58" r="2.4" fill="currentColor" stroke="none"/>
+    </g>
+  </symbol>
+  <symbol id="orn-instagram" viewBox="0 0 24 24">
+    <path fill="currentColor" d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.8.9 1.4.2.4.3 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.8.7-1.4.9-.4.2-1 .3-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.8-.9-1.4-.2-.4-.3-1-.4-2.2C2.2 15.6 2.2 15.2 2.2 12s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.8-.7 1.4-.9.4-.2 1-.3 2.2-.4C8.4 2.2 8.8 2.2 12 2.2Zm0 1.8c-3.1 0-3.5 0-4.7.1-.9 0-1.4.2-1.7.3-.4.2-.7.3-1 .6-.3.3-.5.6-.6 1-.1.3-.3.8-.3 1.7-.1 1.2-.1 1.6-.1 4.7s0 3.5.1 4.7c0 .9.2 1.4.3 1.7.2.4.3.7.6 1 .3.3.6.5 1 .6.3.1.8.3 1.7.3 1.2.1 1.6.1 4.7.1s3.5 0 4.7-.1c.9 0 1.4-.2 1.7-.3.4-.2.7-.3 1-.6.3-.3.5-.6.6-1 .1-.3.3-.8.3-1.7.1-1.2.1-1.6.1-4.7s0-3.5-.1-4.7c0-.9-.2-1.4-.3-1.7-.2-.4-.3-.7-.6-1-.3-.3-.6-.5-1-.6-.3-.1-.8-.3-1.7-.3-1.2-.1-1.6-.1-4.7-.1Zm0 3.1a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 1.8a3.2 3.2 0 1 0 0 6.4 3.2 3.2 0 0 0 0-6.4Zm5.2-2.9a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4Z"/>
+  </symbol>
+  <symbol id="orn-play" viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.2 19 12 8 18.8V5.2Z"/></symbol>
+  <symbol id="orn-arrow" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M14.5 5 7.5 12l7 7"/></symbol>
+  <symbol id="orn-close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="orn-grid" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></symbol>
+  <symbol id="orn-expand" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 15v5h-5M15 4h5v5M9 20H4v-5"/></symbol>
+  <symbol id="orn-sparkle" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5 13.9 9 20.5 11l-6.6 2L12 19.5 10.1 13 3.5 11 10.1 9 12 2.5Z"/></symbol>
+  <symbol id="orn-music" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" d="M9 18V6l10-2v12M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm10-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></symbol>
+</svg>
+
+<div class="progress" aria-hidden="true"><span class="progress__bar" id="progressBar"></span></div>
+
+<!-- ============ nav ============ -->
+<header class="nav" id="nav">
+  <a class="nav__brand" href="#top" data-cursor="link">
+    <span class="nav__monogram">শ</span>
+    <span class="nav__brandtext">
+      <strong>শুভ বিবাহ</strong>
+      <small>Our Wedding Album</small>
+    </span>
+  </a>
+  <nav class="nav__links" aria-label="Sections">
+    <a href="#albums" data-cursor="link">Albums</a>
+    <a href="#films" data-cursor="link">Films</a>
+    <a href="#blessings" data-cursor="link">Blessings</a>
+  </nav>
+  <div class="nav__actions">
+    <button class="iconbtn" id="cursorToggle" type="button" aria-pressed="true" title="Toggle cursor effects" data-cursor="link">
+      <svg class="iconbtn__icon"><use href="#orn-sparkle"/></svg>
+      <span class="iconbtn__text">Cursor</span>
+    </button>
+    <button class="nav__burger" id="navBurger" type="button" aria-expanded="false" aria-controls="navMenu" aria-label="Open menu" data-cursor="link">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <nav class="navmenu" id="navMenu" aria-label="Sections" hidden>
+    <a href="#albums" data-cursor="link">Albums</a>
+    <a href="#films" data-cursor="link">Films</a>
+    <a href="#blessings" data-cursor="link">Blessings</a>
+  </nav>
+</header>
+
+<main id="top">
+
+  <!-- ============ hero ============ -->
+  <section class="hero" id="hero">
+    <div class="hero__bg" aria-hidden="true">
+      <div class="hero__mandala hero__mandala--a" data-parallax="0.16"><svg><use href="#orn-mandala"/></svg></div>
+      <div class="hero__mandala hero__mandala--b" data-parallax="-0.1"><svg><use href="#orn-mandala"/></svg></div>
+      <div class="hero__glow"></div>
+      <div class="hero__petals" id="petals"></div>
+      <div class="hero__vignette"></div>
+    </div>
+
+    <div class="hero__inner" data-parallax-content>
+      <p class="hero__eyebrow reveal" data-reveal>
+        <svg class="hero__eyebrow-orn"><use href="#orn-paisley"/></svg>
+        <span>আমাদের বিয়ে · Our Wedding</span>
+        <svg class="hero__eyebrow-orn hero__eyebrow-orn--flip"><use href="#orn-paisley"/></svg>
+      </p>
+
+      <h1 class="hero__title">
+        <span class="hero__title-bn reveal" data-reveal data-reveal-delay="80">শুভ বিবাহ</span>
+        <span class="hero__title-en reveal" data-reveal data-reveal-delay="180">Our Wedding Album</span>
+      </h1>
+
+      <div class="divider reveal" data-reveal data-reveal-delay="260" aria-hidden="true">
+        <svg><use href="#orn-divider"/></svg>
+      </div>
+
+      <p class="hero__lede reveal" data-reveal data-reveal-delay="340">
+        Two sides of one celebration — turn the pages of the
+        <em>Bride's</em> and the <em>Groom's</em> album, then watch the films.
+      </p>
+
+      <div class="hero__cta reveal" data-reveal data-reveal-delay="420">
+        <a class="btn btn--gold" href="#albums" data-cursor="link">
+          <span>Open the Albums</span>
+        </a>
+        <a class="btn btn--ghost" href="#films" data-cursor="link">Watch the Films</a>
+      </div>
+    </div>
+
+    <a class="hero__scroll" href="#albums" aria-label="Scroll to albums" data-cursor="link">
+      <span class="hero__scroll-line"></span>
+      <span class="hero__scroll-text">Scroll</span>
+    </a>
+  </section>
+
+  <!-- ============ albums ============ -->
+  <section class="section albums" id="albums">
+    <div class="section__orn" aria-hidden="true"><svg><use href="#orn-mandala"/></svg></div>
+    <div class="wrap">
+      <header class="section__head">
+        <p class="section__eyebrow reveal" data-reveal>The Albums · অ্যালবাম</p>
+        <h2 class="section__title reveal" data-reveal data-reveal-delay="60">Two Sides, One Story</h2>
+        <div class="divider divider--sm reveal" data-reveal data-reveal-delay="120" aria-hidden="true"><svg><use href="#orn-divider"/></svg></div>
+        <p class="section__lede reveal" data-reveal data-reveal-delay="180">
+          Pick a side to open its album. Every page turns with a soft paper flip — swipe, tap or use your arrow keys.
+        </p>
+      </header>
+
+      <div class="albumgrid" id="albumGrid">
+        <!-- filled by js/app.js from js/photos-data.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ films ============ -->
+  <section class="section films" id="films">
+    <div class="section__orn section__orn--right" aria-hidden="true"><svg><use href="#orn-mandala"/></svg></div>
+    <div class="wrap">
+      <header class="section__head">
+        <p class="section__eyebrow reveal" data-reveal>The Films · ভিডিও</p>
+        <h2 class="section__title reveal" data-reveal data-reveal-delay="60">Moving Pictures</h2>
+        <div class="divider divider--sm reveal" data-reveal data-reveal-delay="120" aria-hidden="true"><svg><use href="#orn-divider"/></svg></div>
+        <p class="section__lede reveal" data-reveal data-reveal-delay="180">
+          Press play to watch right here, or open any film on YouTube.
+        </p>
+      </header>
+
+      <div class="filmgrid" id="filmGrid">
+        <!-- filled by js/app.js -->
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ blessings ============ -->
+  <section class="blessings" id="blessings">
+    <div class="blessings__mandala" aria-hidden="true"><svg><use href="#orn-mandala"/></svg></div>
+    <div class="wrap">
+      <blockquote class="blessings__quote reveal" data-reveal>
+        <svg class="blessings__mark" aria-hidden="true"><use href="#orn-paisley"/></svg>
+        <p class="blessings__bn">দুই পরিবার, দুই হৃদয়, এক কাহিনি।</p>
+        <p class="blessings__en">Two families, two hearts, one story — woven together with blessings, laughter and a lifetime of celebrations.</p>
+      </blockquote>
+      <div class="blessings__stats reveal" data-reveal data-reveal-delay="160" id="blessingStats"></div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ footer ============ -->
+<footer class="footer">
+  <div class="footer__orn" aria-hidden="true"><svg><use href="#orn-divider"/></svg></div>
+  <div class="wrap footer__inner">
+    <p class="footer__credit">
+      Created by <strong>Rounak Adhikary</strong>
+    </p>
+    <a class="footer__ig" href="https://www.instagram.com/ig_chromozome" target="_blank" rel="noopener noreferrer" data-cursor="link" aria-label="Instagram @ig_chromozome">
+      <span class="footer__ig-icon"><svg><use href="#orn-instagram"/></svg></span>
+      <span class="footer__ig-text">@ig_chromozome</span>
+    </a>
+    <p class="footer__fine">শুভ বিবাহ · Made with love, marigolds and a little bit of JavaScript.</p>
+  </div>
+</footer>
+
+<!-- ============ album viewer ============ -->
+<div class="viewer" id="viewer" role="dialog" aria-modal="true" aria-label="Album viewer" hidden>
+  <div class="viewer__backdrop" data-close></div>
+
+  <header class="viewer__bar">
+    <div class="viewer__info">
+      <p class="viewer__album" id="viewerAlbum">Album</p>
+      <p class="viewer__count"><span id="viewerIndex">1</span> <i>/</i> <span id="viewerTotal">0</span></p>
+    </div>
+    <div class="viewer__tools">
+      <button class="tool" type="button" id="btnSlideshow" aria-pressed="false" title="Slideshow (S key)" data-cursor="link">
+        <span class="tool__dot"></span><span class="tool__text">Slideshow</span>
+      </button>
+      <button class="tool" type="button" id="btnFilmstrip" aria-pressed="false" title="Filmstrip (G key)" data-cursor="link">
+        <svg><use href="#orn-grid"/></svg><span class="tool__text">Filmstrip</span>
+      </button>
+      <button class="tool" type="button" id="btnFullscreen" title="Fullscreen (V key)" data-cursor="link">
+        <svg><use href="#orn-expand"/></svg><span class="tool__text">Fullscreen</span>
+      </button>
+      <button class="tool tool--close" type="button" id="btnClose" title="Close (Esc)" data-cursor="link">
+        <svg><use href="#orn-close"/></svg><span class="tool__text">Close</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="viewer__stage" id="viewerStage">
+    <div class="pagewrap" id="pageWrap">
+      <div class="page" id="page">
+        <div class="page__inner">
+          <div class="page__mat" aria-hidden="true"><svg><use href="#orn-mandala"/></svg></div>
+          <div class="page__lqip" id="pageLqip" aria-hidden="true"></div>
+          <img class="page__img" id="pageImg" alt="" draggable="false">
+          <div class="page__sheen" aria-hidden="true"></div>
+          <div class="page__loader" id="pageLoader" aria-hidden="true"><span></span></div>
+        </div>
+        <button class="page__zone page__zone--prev" type="button" aria-label="Previous photo" data-flip="prev" data-cursor="nav"></button>
+        <button class="page__zone page__zone--next" type="button" aria-label="Next photo" data-flip="next" data-cursor="nav"></button>
+      </div>
+      <div class="flip" id="flip" aria-hidden="true">
+        <div class="flip__face">
+          <div class="flip__mat" aria-hidden="true"><svg><use href="#orn-mandala"/></svg></div>
+          <div class="flip__img"></div>
+          <div class="flip__shade"></div>
+        </div>
+        <div class="flip__back"></div>
+      </div>
+    </div>
+
+    <button class="arrow arrow--prev" type="button" id="arrowPrev" aria-label="Previous photo" data-flip="prev" data-cursor="nav">
+      <svg><use href="#orn-arrow"/></svg>
+    </button>
+    <button class="arrow arrow--next" type="button" id="arrowNext" aria-label="Next photo" data-flip="next" data-cursor="nav">
+      <svg><use href="#orn-arrow"/></svg>
+    </button>
+
+    <p class="viewer__hint" id="viewerHint">Tap the page · Swipe · ← → keys</p>
+  </div>
+
+  <div class="filmstrip" id="filmstrip" hidden>
+    <div class="filmstrip__track" id="filmstripTrack"></div>
+  </div>
+</div>
+
+<script src="js/photos-data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
