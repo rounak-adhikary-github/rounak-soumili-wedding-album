@@ -1,19 +1,26 @@
 # ---------------------------------------------------------------------------
-# The site ships the compressed copies in assets/photos/ (about 68 MB).
-# The multi-gigabyte originals must NOT be committed — GitHub will reject the
-# push, and GitHub Pages has a soft 1 GB limit for the whole site.
-# Keep the originals wherever you like; just leave them out of the repo.
+# The site ships the compressed copies in assets/photos/ (70 MB) and
+# assets/pdfs/ (55 MB). The multi-gigabyte originals must NOT be committed —
+# GitHub will reject the push, and GitHub Pages has a soft 1 GB limit for the
+# whole site. Keep the originals wherever you like; just leave them out of the
+# repo.
 # ---------------------------------------------------------------------------
 Bride Side/
 Groom Side/
+
+# The photography team's original print-ready PDFs (~780 MB together). GitHub
+# hard-rejects any file over 100 MB, so the 680 MB groom album could never be
+# pushed. The site ships the rebuilt, page-split copies in assets/pdfs/ instead.
+assets/*.pdf
 
 # local image-processing environment
 .venv/
 __pycache__/
 *.pyc
 
-# dev scratch (headless-browser screenshots, layout probes)
+# dev scratch (headless-browser screenshots, layout probes, server logs)
 .preview/
+.scratch/
 
 # build logs
 tools/build.log
@@ -22,3 +29,4 @@ tools/build.log
 # because that is what the live site loads. manifest.json is a duplicate
 # convenience copy, so it stays out of the repo.
 tools/manifest.json
+tools/pdfs-manifest.json

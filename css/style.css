@@ -463,7 +463,118 @@ body.cursor-live button { cursor: none; }
 .albumcard__count b { display: block; font-family: var(--font-display); font-size: 1.9rem; color: var(--gold-lt); line-height: 1; }
 .albumcard__count span { font-size: .6rem; letter-spacing: .24em; text-transform: uppercase; color: rgba(253, 244, 227, .55); }
 
-/* ---------- 8. films ---------- */
+/* ---------- 8. printed album cards (PDF) ---------- */
+.bookgrid {
+  display: grid; gap: clamp(1.6rem, 3.5vw, 2.6rem);
+  /* min() keeps the track from outgrowing a narrow phone and forcing a
+     horizontal scrollbar. */
+  grid-template-columns: repeat(auto-fit, minmax(min(330px, 100%), 1fr));
+}
+.bookcard {
+  position: relative; display: flex; flex-direction: column;
+  border: 1px solid rgba(217, 171, 74, .24); border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(38, 9, 20, .7), rgba(16, 4, 9, .88));
+  box-shadow: var(--shadow-soft); overflow: hidden;
+  transition: transform .6s var(--ease-out), border-color .5s, box-shadow .6s;
+}
+.bookcard:hover {
+  transform: translateY(-8px); border-color: rgba(244, 223, 164, .55);
+  box-shadow: 0 44px 84px -40px rgba(0, 0, 0, 1), 0 0 0 1px rgba(217, 171, 74, .28);
+}
+
+/* the cover is the album's 3:2 title page — show it whole, never cropped */
+.bookcard__cover {
+  position: relative; display: block; width: 100%; padding: 0;
+  aspect-ratio: 3 / 2; overflow: hidden; background: #0a0307;
+}
+.bookcard__cover img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform 1.1s var(--ease-out), filter .6s;
+}
+.bookcard:hover .bookcard__cover img { transform: scale(1.04); filter: saturate(1.08) contrast(1.04); }
+.bookcard__veil {
+  position: absolute; inset: 0; z-index: 2; opacity: .5;
+  background: linear-gradient(180deg, rgba(14, 3, 8, 0) 42%, rgba(14, 3, 8, .88) 100%);
+  transition: opacity .6s;
+}
+.bookcard:hover .bookcard__veil { opacity: .78; }
+
+.bookcard__corner {
+  position: absolute; width: 20px; height: 20px; z-index: 4;
+  color: rgba(253, 245, 221, .62); pointer-events: none; transition: color .5s;
+}
+.bookcard__corner--tl { top: 8px; left: 8px; }
+.bookcard__corner--tr { top: 8px; right: 8px; transform: scaleX(-1); }
+.bookcard__corner--bl { bottom: 8px; left: 8px; transform: scaleY(-1); }
+.bookcard__corner--br { bottom: 8px; right: 8px; transform: scale(-1); }
+.bookcard:hover .bookcard__corner { color: var(--gold-lt); }
+
+.bookcard__badge {
+  position: absolute; top: .85rem; left: 50%; transform: translateX(-50%); z-index: 5;
+  padding: .32rem .85rem; border-radius: 40px; white-space: nowrap;
+  border: 1px solid rgba(217, 171, 74, .5); background: rgba(14, 3, 8, .58);
+  backdrop-filter: blur(6px);
+  font-size: .56rem; letter-spacing: .22em; text-transform: uppercase; color: var(--gold-pale);
+}
+.bookcard__cta {
+  position: absolute; left: 50%; bottom: 1.15rem; transform: translateX(-50%); z-index: 5;
+  display: inline-flex; align-items: center; gap: .5rem; white-space: nowrap;
+  padding: .6rem 1.15rem; border-radius: 40px;
+  border: 1px solid rgba(244, 223, 164, .5); background: rgba(20, 4, 10, .5);
+  backdrop-filter: blur(8px);
+  font-size: .6rem; letter-spacing: .2em; text-transform: uppercase; color: var(--gold-pale);
+  transition: background-color .4s, border-color .4s, transform .5s var(--ease-out);
+}
+.bookcard__cta svg { width: 15px; height: 15px; }
+.bookcard__cover:hover .bookcard__cta {
+  background: rgba(164, 18, 58, .55); border-color: var(--gold-lt);
+  transform: translateX(-50%) translateY(-3px);
+}
+
+.bookcard__body { padding: clamp(1.2rem, 2.6vw, 1.7rem); display: flex; flex-direction: column; }
+.bookcard__kicker {
+  margin: 0; font-size: .6rem; letter-spacing: .28em; text-transform: uppercase;
+  color: rgba(242, 163, 60, .9);
+}
+.bookcard__title {
+  margin: .35rem 0 0; font-family: var(--font-title); font-weight: 400;
+  font-size: clamp(1.4rem, 2.6vw, 1.85rem); line-height: 1.2; color: var(--gold-pale);
+}
+.bookcard__bn { margin: .15rem 0 0; font-family: var(--font-bn); font-size: .95rem; color: rgba(253, 244, 227, .6); }
+
+/* a thin peek at the spreads waiting inside — each mini is one spread, so it
+   holds that spread's two pages side by side */
+.bookcard__peek { display: flex; gap: .4rem; margin: .95rem 0 .2rem; }
+.bookcard__mini {
+  flex: 1 1 0; min-width: 0; aspect-ratio: 3 / 1; display: flex;
+  overflow: hidden; border-radius: 2px;
+  border: 1px solid rgba(217, 171, 74, .22); opacity: .7;
+  transition: opacity .5s, border-color .5s, transform .6s var(--ease-out);
+}
+.bookcard__mini img { flex: 1 1 50%; width: 50%; min-width: 0; height: 100%; object-fit: cover; }
+.bookcard:hover .bookcard__mini { opacity: 1; border-color: rgba(217, 171, 74, .45); }
+.bookcard:hover .bookcard__mini:nth-child(2) { transform: translateY(-3px); }
+.bookcard:hover .bookcard__mini:nth-child(3) { transform: translateY(2px); }
+
+.bookcard__actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.15rem; }
+.bookcard__raw {
+  align-self: flex-start; margin-top: .95rem; padding-bottom: .15rem;
+  font-size: .66rem; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(253, 244, 227, .45); border-bottom: 1px solid rgba(217, 171, 74, .28);
+  transition: color .4s, border-color .4s;
+}
+.bookcard__raw:hover { color: var(--gold-lt); border-color: var(--gold-lt); }
+
+.btn--sm { padding: .68rem 1.3rem; font-size: .66rem; letter-spacing: .16em; }
+.btn--dl { gap: .6rem; }
+.btn small { position: relative; z-index: 2; font-size: .6rem; letter-spacing: .1em; opacity: .66; }
+
+/* the download tool only appears while a printed album is open */
+.tool--dl { text-decoration: none; }
+.tool--dl[hidden] { display: none; }
+.tool--dl:hover { border-color: var(--gold-lt); background: rgba(217, 171, 74, .12); }
+
+/* ---------- 9. films ---------- */
 .filmgrid { display: grid; gap: clamp(1.2rem, 2.6vw, 1.9rem); grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
 .filmcard {
   position: relative; border-radius: 6px; overflow: hidden;
@@ -517,7 +628,7 @@ body.cursor-live button { cursor: none; }
 }
 .filmcard__yt:hover { border-color: var(--gold-lt); color: var(--gold-pale); background: rgba(217, 171, 74, .1); }
 
-/* ---------- 9. blessings ---------- */
+/* ---------- 10. blessings ---------- */
 .blessings { position: relative; padding: clamp(4.5rem, 10vw, 8rem) 0; text-align: center; overflow: hidden; }
 .blessings::before {
   content: ""; position: absolute; inset: 0;
@@ -552,7 +663,7 @@ body.cursor-live button { cursor: none; }
 }
 .stat span { font-size: .64rem; letter-spacing: .26em; text-transform: uppercase; color: rgba(253, 244, 227, .55); }
 
-/* ---------- 10. footer ---------- */
+/* ---------- 11. footer ---------- */
 .footer {
   position: relative; padding: clamp(3.4rem, 7vw, 5rem) 0 3rem; text-align: center;
   border-top: 1px solid rgba(217, 171, 74, .16);
@@ -576,7 +687,7 @@ body.cursor-live button { cursor: none; }
 .footer__ig-text { font-size: .86rem; letter-spacing: .1em; color: var(--gold-pale); }
 .footer__fine { margin: .6rem 0 0; font-size: .72rem; letter-spacing: .1em; color: rgba(253, 244, 227, .4); }
 
-/* ---------- 11. reveal ---------- */
+/* ---------- 12. reveal ---------- */
 [data-reveal] {
   opacity: 0; transform: translateY(28px); filter: blur(7px);
   transition: opacity 1s var(--ease-out), transform 1s var(--ease-out), filter 1s var(--ease-out);
@@ -584,7 +695,7 @@ body.cursor-live button { cursor: none; }
 }
 [data-reveal].is-in { opacity: 1; transform: none; filter: none; }
 
-/* ---------- 12. viewer ---------- */
+/* ---------- 13. viewer ---------- */
 .viewer {
   position: fixed; inset: 0; z-index: 200;
   display: flex; flex-direction: column;
@@ -813,7 +924,15 @@ body.cursor-live button { cursor: none; }
 .filmstrip__item:hover { opacity: .95; transform: translateY(-2px); }
 .filmstrip__item.is-current { opacity: 1; border-color: var(--gold-lt); box-shadow: 0 0 0 1px rgba(244, 223, 164, .5); }
 
-/* ---------- 13. responsive ---------- */
+/* ---------- 14. responsive ---------- */
+/* Five tools now share this bar (the printed-album download joined them), and
+   at 900px wide the labels only just fit on one row. Trim their breathing room
+   through the tight band so a wider webfont can never push them onto two. */
+@media (max-width: 1080px) {
+  .viewer__tools { gap: .38rem; }
+  .tool { padding: .5rem .62rem; letter-spacing: .1em; }
+}
+
 @media (max-width: 860px) {
   .nav__links { display: none; }
   .nav__burger { display: flex; }
@@ -832,6 +951,11 @@ body.cursor-live button { cursor: none; }
   .viewer__hint { display: none; }
 }
 @media (max-width: 560px) {
+  .bookcard__cta { padding: .5rem .85rem; font-size: .55rem; letter-spacing: .15em; }
+  .bookcard__cta svg { width: 13px; height: 13px; }
+  .bookcard__actions { gap: .45rem; }
+  .bookcard__actions .btn { flex: 1 1 100%; }
+  .bookcard__peek { gap: .3rem; }
   .hero__mandala--a { width: 130vw; margin: -65vw 0 0 -65vw; }
   .hero__mandala--b { width: 96vw; margin: -48vw 0 0 -48vw; }
   .iconbtn__text { display: none; }
@@ -841,7 +965,7 @@ body.cursor-live button { cursor: none; }
   .filmstrip__item { width: 68px; height: 48px; }
 }
 
-/* ---------- 14. reduced motion ---------- */
+/* ---------- 15. reduced motion ---------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {

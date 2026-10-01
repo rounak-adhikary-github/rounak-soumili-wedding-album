@@ -1,7 +1,8 @@
 # শুভ বিবাহ · Our Wedding Album
 
 A static Bengali / Indian wedding album website — two photo albums (Bride's Side
-and Groom's Side) that turn with a Canvera-style paper page flip, plus the
+and Groom's Side) that turn with a Canvera-style paper page flip, the
+photography team's two printed albums as readable, downloadable PDFs, and the
 wedding films. No build step, no framework, no server. Just open `index.html`,
 or push it to GitHub Pages for free.
 
@@ -12,12 +13,31 @@ or push it to GitHub Pages for free.
 | | |
 |---|---|
 | **Albums** | Bride's Side (140 photographs) and Groom's Side (125 photographs) |
+| **Printed albums** | The photographers' two PDFs — Bride's Album (58 reading pages) and Groom's Album (44) — to read page by page, play as a slideshow, or download |
 | **The flip** | The outgoing page hinges around its left edge in 3D, revealing the next photograph underneath, and shows its blank reverse as it swings past edge-on — forwards *and* backwards. The leaf itself is black with an even gilded frame, so the photographs carry all the contrast |
 | **Films** | 6 videos that play inline on click, each also linking to YouTube |
 | **Effects** | Blur-up image loading, scroll reveals, parallax, drifting marigold petals, a custom gold cursor you can switch off, hash-routed deep links |
-| **Weight** | ~68 MB total (2.6 GB of originals compressed to WebP) |
+| **Weight** | ~125 MB total (2.6 GB of originals and a 780 MB pair of PDFs, compressed for the web) |
 
 Photographs are shown with no file names anywhere — only "photograph 12 of 140".
+
+---
+
+## Why the printed albums are cut into pages
+
+A print album is laid out as double-page spreads — 3:1, twice as wide as they
+are tall. Showing a whole spread on a screen is what makes a viewer feel like a
+postage stamp: on a laptop the spread is height-capped into a short strip, and on
+a phone each of its two pages shrinks to about a fifth of the width it deserves.
+
+So every spread is **cut down its middle at the fold**, and each half becomes its
+own page in the viewer — a 3:2 book page, rendered at 2600 px across, which is
+crisp on a high-density display at full screen. That doubles every page's size on
+screen (at 1440×900 the page goes from 1265×422 to 1164×777) and, because a page
+now matches its own shape exactly, nothing is letterboxed or cropped.
+
+The downloadable PDF keeps the **original spread layout** — it is the album as
+the photographers designed it, not the reading version.
 
 ---
 
@@ -52,12 +72,15 @@ better so the browser is not blocking anything.
 4. After a minute your album is live at
    `https://<your-username>.github.io/<repo-name>/`.
 
-### Why the original photo folders are not in the repo
+### Why the original photo folders and PDFs are not in the repo
 
-`.gitignore` deliberately excludes `Bride Side/` and `Groom Side/` — those hold
-~2.6 GB of originals, which GitHub will reject and GitHub Pages will not serve.
-The site only needs the compressed copies in `assets/photos/` (68 MB), and those
-*are* committed.
+`.gitignore` deliberately excludes `Bride Side/`, `Groom Side/` and the two
+original `assets/*.pdf` files. Those hold ~2.6 GB of photographs and ~780 MB of
+PDFs; GitHub hard-rejects any file over 100 MB, so the 680 MB groom album could
+never be pushed as it stands. The site only needs the generated copies in
+`assets/photos/` (70 MB) and `assets/pdfs/` (55 MB), and those *are* committed.
+
+Keep the originals wherever you like — the build scripts only read them.
 
 ---
 
@@ -88,12 +111,42 @@ Tuning lives at the top of `tools/build_gallery.py` (`FULL_EDGE`, `FULL_QUALITY`
 
 ---
 
+## Adding or replacing a printed album (PDF)
+
+1. Drop the new PDF into `assets/`, named `<something> album.pdf`.
+2. Point the `BOOKS` list at the top of `tools/build_pdfs.py` at it — one row of
+   `(id, file, title, subtitle, bengali line)` — and install the one extra
+dependency:
+
+   ```bash
+   ./.venv/Scripts/python.exe -m pip install pypdfium2
+   ./.venv/Scripts/python.exe tools/build_pdfs.py
+   ```
+
+That reads each printed page and writes:
+
+- `assets/pdfs/<id>/<n>.webp` — one page in the viewer, 2600 px across, quality 84
+- `assets/pdfs/<id>/thumbs/<n>.webp` — cover and filmstrip, 700 px
+- `assets/pdfs/<id>-album.pdf` — the compact PDF kept for download
+- `js/pdfs-data.js` — the manifest the site loads
+
+A page wider than twice its height is treated as a spread and cut at the fold;
+anything else (a cover, a single-page insert) is kept whole. That is automatic,
+so an album laid out differently still comes out as one page per screen.
+Tuning lives at the top of `tools/build_pdfs.py` (`SCREEN_EDGE`, `SCREEN_QUALITY`,
+`SPLIT_ABOVE`, `PDF_EDGE`, `PDF_QUALITY`).
+
+If a ".pdf" is missing, the section simply does not appear — the site never
+breaks on a missing file.
+
+---
+
 ## Settings you may want to change
 
 | What | Where |
 |---|---|
 | Videos shown | `FILMS` in `js/app.js` — add or remove `{ id, title, sub }` using the YouTube video id. Add `thumb: 'hq'` if the upload has no high-resolution thumbnail (the site falls back on its own, this just avoids a needless 404) |
-| Slideshow speed | `CONFIG.slideshowDelay` in `js/app.js` (milliseconds) |
+| Slideshow speed | `CONFIG.slideshowDelay` for photographs and `CONFIG.bookSlideshowDelay` for printed album pages, in `js/app.js` (milliseconds) |
 | Album card cover photo | `CONFIG.coverAspect` in `js/app.js` — the card picks whichever early photo crops best to that shape |
 | Instagram handle | the footer link in `index.html` and `CONFIG.instagram` in `js/app.js` |
 | Hero wording | the `.hero` section of `index.html` (currently "শুভ বিবাহ / Our Wedding Album") |
@@ -112,10 +165,11 @@ Once an album is open:
 
 - `←` `→` `↑` `↓` `Space` — turn a page (wraps around at the ends)
 - `Home` / `End` — first / last photograph
-- `S` slideshow · `G` filmstrip · `V` fullscreen · `Esc` close
+- `S` slideshow · `G` filmstrip / page list · `V` fullscreen · `Esc` close
+- `D` downloads the PDF — only while a printed album is open
 - Swipe on touch, or tap the left/right side of a page
-- `#album/bride/42` in the URL opens that photograph directly, so any page can
-  be shared or bookmarked
+- `#album/bride/42` opens that photograph and `#book/bride/12` that printed-album
+  page directly, so any page can be shared or bookmarked
 
 ---
 
@@ -127,8 +181,11 @@ index.html              the whole page
 css/style.css           theme, layout, page-flip styling
 js/app.js               viewer, flip engine, effects
 js/photos-data.js       generated manifest (committed)
+js/pdfs-data.js         generated manifest (committed)
 assets/photos/          generated WebP photographs (committed)
-tools/build_gallery.py  the image pipeline
+assets/pdfs/            generated printed-album pages and PDFs (committed)
+tools/build_gallery.py  the photograph pipeline
+tools/build_pdfs.py     the printed-album pipeline
 .nojekyll               tells GitHub Pages to serve the files as-is
 ```
 

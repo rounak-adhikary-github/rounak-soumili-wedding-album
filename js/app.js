@@ -10,6 +10,9 @@
     instagram: 'ig_chromozome',
     credit: 'Rounak Adhikary',
     slideshowDelay: 5200,
+    // A printed album page carries a whole spread, so it needs longer on screen
+    // than a single photograph.
+    bookSlideshowDelay: 6800,
     coverAspect: 0.8 // album cards are 4:5, so pick a cover that crops well
   };
 
@@ -25,6 +28,8 @@
   ];
 
   var ALBUMS = (window.ALBUMS && window.ALBUMS.albums) || [];
+  /* The printed albums: the photography team's PDFs, one image per page. */
+  var BOOKS = (window.BOOKS && window.BOOKS.books) || [];
   var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var FINE_POINTER = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
@@ -38,6 +43,50 @@
   function albumById(id) {
     for (var i = 0; i < ALBUMS.length; i++) if (ALBUMS[i].id === id) return ALBUMS[i];
     return null;
+  }
+  function bookById(id) {
+    for (var i = 0; i < BOOKS.length; i++) if (BOOKS[i].id === id) return BOOKS[i];
+    return null;
+  }
+  function formatBytes(bytes) {
+    if (!bytes) return '';
+    if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  /* A "collection" is whatever the viewer is showing — a photo album (two
+     hundred odd photographs) or a printed album (a PDF, one image per page).
+     Normalising both to the same shape lets one viewer drive each of them. */
+  function albumCollection(id) {
+    var album = albumById(id);
+    if (!album || !album.photos.length) return null;
+    return {
+      kind: 'album',
+      id: album.id,
+      title: album.title,
+      photos: album.photos,
+      aspect: null // measured per screen, because the photos mix orientations
+    };
+  }
+
+  function bookCollection(id) {
+    var book = bookById(id);
+    if (!book || !book.pages.length) return null;
+    return {
+      kind: 'book',
+      id: book.id,
+      title: book.title,
+      photos: book.pages,
+      // A printed album is one shape from cover to cover — the cover is mounted
+      // inside that shape rather than resizing the whole book.
+      aspect: book.aspect || null,
+      pdf: book.pdf,
+      pdfBytes: book.pdfBytes
+    };
+  }
+
+  function collectionFor(kind, id) {
+    return kind === 'book' ? bookCollection(id) : albumCollection(id);
   }
   /* Warm the browser's decoded-image cache. Resolves even on failure so a
      single broken file can never stall the album. */
@@ -250,7 +299,68 @@
     });
   }
 
-  /* ---------- 6. films ---------------------------------------------- */
+  /* ---------- 6. printed album cards -------------------------------- */
+  function buildBookCards() {
+    var host = q('#bookGrid');
+    if (!host || !BOOKS.length) return;
+
+    BOOKS.forEach(function (book, i) {
+      var size = formatBytes(book.pdfBytes);
+      var card = document.createElement('article');
+      card.className = 'bookcard reveal';
+      card.setAttribute('data-reveal', '');
+      card.setAttribute('data-reveal-delay', String((i % 2) * 120));
+
+      // A few spreads from inside, so the card previews the design itself and
+      // not just the cover. Each peek is a spread: its two pages side by side,
+      // exactly the pair the viewer will show one at a time.
+      var peek = (book.preview || []).map(function (spread, n) {
+        return '<span class="bookcard__mini" style="--n:' + n + '">' +
+                 spread.map(function (src) {
+                   return '<img src="' + src + '" alt="" loading="lazy" decoding="async">';
+                 }).join('') +
+               '</span>';
+      }).join('');
+
+      card.innerHTML =
+        '<button class="bookcard__cover" type="button" data-cursor="link" ' +
+                'aria-label="Read the ' + book.title + ' page by page, ' + book.count + ' pages">' +
+          '<img src="' + book.cover + '" alt="" loading="lazy" decoding="async">' +
+          '<span class="bookcard__veil"></span>' +
+          '<svg class="bookcard__corner bookcard__corner--tl"><use href="#orn-corner"/></svg>' +
+          '<svg class="bookcard__corner bookcard__corner--tr"><use href="#orn-corner"/></svg>' +
+          '<svg class="bookcard__corner bookcard__corner--bl"><use href="#orn-corner"/></svg>' +
+          '<svg class="bookcard__corner bookcard__corner--br"><use href="#orn-corner"/></svg>' +
+          '<span class="bookcard__badge">PDF · ' + size + '</span>' +
+          '<span class="bookcard__cta">' +
+            '<svg><use href="#orn-book"/></svg><span>Read page by page</span>' +
+          '</span>' +
+        '</button>' +
+        '<div class="bookcard__body">' +
+          '<p class="bookcard__kicker">' + book.subtitle + ' · ' + book.count + ' pages</p>' +
+          '<h3 class="bookcard__title">' + book.title + '</h3>' +
+          '<p class="bookcard__bn">' + book.bn + '</p>' +
+          '<div class="bookcard__peek">' + peek + '</div>' +
+          '<div class="bookcard__actions">' +
+            '<button class="btn btn--gold btn--sm" type="button" data-act="pages" data-cursor="link"><span>View Pages</span></button>' +
+            '<button class="btn btn--ghost btn--sm" type="button" data-act="show" data-cursor="link"><span>Slideshow</span></button>' +
+            '<a class="btn btn--ghost btn--sm btn--dl" href="' + book.pdf + '" download="' + book.title +
+               '.pdf" data-cursor="link"><span>Download PDF</span><small>' + size + '</small></a>' +
+          '</div>' +
+          '<a class="bookcard__raw" href="' + book.pdf + '" target="_blank" rel="noopener noreferrer" data-cursor="link">' +
+            'Open the PDF in a new tab' +
+          '</a>' +
+        '</div>';
+
+      q('.bookcard__cover', card).addEventListener('click', function () { openBook(book.id, 0); });
+      q('[data-act="pages"]', card).addEventListener('click', function () { openBook(book.id, 0); });
+      q('[data-act="show"]', card).addEventListener('click', function () { openBook(book.id, 0, true); });
+
+      host.appendChild(card);
+    });
+  }
+
+  /* ---------- 7. films ---------------------------------------------- */
   function buildFilms() {
     var host = q('#filmGrid');
     if (!host) return;
@@ -307,7 +417,7 @@
     });
   }
 
-  /* ---------- 7. counts --------------------------------------------- */
+  /* ---------- 8. counts --------------------------------------------- */
   function countUp(el, to, duration) {
     if (REDUCED) { el.textContent = String(to); return; }
     var start = null;
@@ -327,9 +437,10 @@
     var photos = ALBUMS.reduce(function (sum, album) { return sum + album.count; }, 0);
     var stats = [
       { value: ALBUMS.length, label: 'Albums' },
-      { value: photos, label: 'Photographs' },
-      { value: FILMS.length, label: 'Wedding Films' }
+      { value: photos, label: 'Photographs' }
     ];
+    if (BOOKS.length) stats.push({ value: BOOKS.length, label: 'Printed Albums' });
+    stats.push({ value: FILMS.length, label: 'Wedding Films' });
     stats.forEach(function (stat) {
       var box = document.createElement('div');
       box.className = 'stat';
@@ -347,7 +458,7 @@
     });
   }
 
-  /* ---------- 8. custom cursor -------------------------------------- */
+  /* ---------- 9. custom cursor -------------------------------------- */
   function initCursor() {
     var toggle = q('#cursorToggle');
     var root = q('#cursor');
@@ -425,7 +536,7 @@
   }
 
   /* ==================================================================
-     9. the album viewer  —  Canvera-style page flip
+     10. the viewer  —  Canvera-style page flip
      ================================================================== */
   var els = {};
   var state = {
@@ -459,6 +570,7 @@
     els.btnSlideshow = q('#btnSlideshow');
     els.btnFilmstrip = q('#btnFilmstrip');
     els.btnFullscreen = q('#btnFullscreen');
+    els.btnDownload = q('#btnDownload');
     els.arrowNext = q('#arrowNext');
   }
 
@@ -500,7 +612,9 @@
     }
     var availW = Math.max(180, els.stage.clientWidth - px - reserve);
     var availH = Math.max(180, els.stage.clientHeight - py);
-    var aspect = chooseAspect(availW, availH);
+    // A printed album keeps one shape for every leaf; a photo album picks the
+    // shape that shows its mixed orientations largest.
+    var aspect = (state.album && state.album.aspect) || chooseAspect(availW, availH);
     els.stage.style.setProperty('--aspect', String(aspect));
     var width = Math.min(availW, availH * aspect);
     var height = width / aspect;
@@ -510,14 +624,29 @@
 
   function updateChrome() {
     var total = state.photos.length;
+    var isBook = !!(state.album && state.album.kind === 'book');
     if (els.viewerAlbum) els.viewerAlbum.textContent = state.album ? state.album.title : '';
     if (els.viewerIndex) els.viewerIndex.textContent = String(state.index + 1);
     if (els.viewerTotal) els.viewerTotal.textContent = String(total);
     document.title = state.album
-      ? 'Photo ' + (state.index + 1) + ' · ' + state.album.title + ' · শুভ বিবাহ'
+      ? (isBook ? 'Page ' : 'Photo ') + (state.index + 1) + ' · ' + state.album.title + ' · শুভ বিবাহ'
       : 'শুভ বিবাহ · Our Wedding Album';
 
-    if (state.stripBuiltFor === (state.album && state.album.id) && els.track) {
+    if (els.btnDownload) {
+      els.btnDownload.hidden = !isBook;
+      if (isBook) {
+        els.btnDownload.href = state.album.pdf;
+        els.btnDownload.setAttribute('download', state.album.title + '.pdf');
+        els.btnDownload.title = 'Download the ' + state.album.title + ' as a PDF (' +
+          formatBytes(state.album.pdfBytes) + ') · D key';
+      }
+    }
+
+    if (els.btnFilmstrip) {
+      els.btnFilmstrip.title = isBook ? 'Page list (G key)' : 'Filmstrip (G key)';
+    }
+
+    if (state.stripBuiltFor === collectionKey() && els.track) {
       var current = q('.filmstrip__item.is-current', els.track);
       if (current) current.classList.remove('is-current');
       var item = els.track.children[state.index];
@@ -530,11 +659,21 @@
     }
   }
 
+  /* A photo album and a printed album can share an id (both "bride"), so the
+     filmstrip cache has to key on the kind as well. */
+  function collectionKey() {
+    return state.album ? state.album.kind + ':' + state.album.id : null;
+  }
+
+  function unitLabel() {
+    return state.album && state.album.kind === 'book' ? 'page' : 'photograph';
+  }
+
   /* --- paint a page (used after its image is decoded) --------------- */
   function applyPage(index) {
     var photo = state.photos[index];
     els.img.src = photo.src;
-    els.img.alt = state.album.title + ' — photograph ' + (index + 1) + ' of ' + state.photos.length;
+    els.img.alt = state.album.title + ' — ' + unitLabel() + ' ' + (index + 1) + ' of ' + state.photos.length;
     els.img.classList.add('is-ready');
     els.lqip.style.backgroundImage = 'url("' + photo.lqip + '")';
     els.lqip.classList.add('is-gone');
@@ -545,7 +684,7 @@
   function paintFirst(index) {
     var photo = state.photos[index];
     els.img.classList.remove('is-ready');
-    els.img.alt = state.album.title + ' — photograph ' + (index + 1) + ' of ' + state.photos.length;
+    els.img.alt = state.album.title + ' — ' + unitLabel() + ' ' + (index + 1) + ' of ' + state.photos.length;
     els.lqip.style.backgroundImage = 'url("' + photo.lqip + '")';
     els.lqip.classList.remove('is-gone');
     els.loader.classList.add('is-on');
@@ -632,21 +771,21 @@
     state.animating = false;
     updateChrome();
     preloadAround(state.index);
-    history.replaceState(null, '', '#album/' + state.album.id + '/' + (state.index + 1));
+    history.replaceState(null, '', '#' + state.album.kind + '/' + state.album.id + '/' + (state.index + 1));
     if (state.slideshow) scheduleSlideshow();
   }
 
   /* --- filmstrip ---------------------------------------------------- */
   function buildStrip() {
-    if (state.stripBuiltFor === state.album.id) return;
-    state.stripBuiltFor = state.album.id;
+    if (state.stripBuiltFor === collectionKey()) return;
+    state.stripBuiltFor = collectionKey();
     els.track.innerHTML = '';
     var frag = document.createDocumentFragment();
     state.photos.forEach(function (photo, i) {
       var item = document.createElement('button');
       item.type = 'button';
       item.className = 'filmstrip__item';
-      item.setAttribute('aria-label', 'Go to photograph ' + (i + 1));
+      item.setAttribute('aria-label', 'Go to ' + unitLabel() + ' ' + (i + 1));
       item.innerHTML = '<img src="' + photo.thumb + '" loading="lazy" decoding="async" alt="">';
       item.addEventListener('click', function () {
         if (i !== state.index) goTo(i, i > state.index ? 'next' : 'prev');
@@ -672,10 +811,13 @@
   function scheduleSlideshow() {
     clearTimeout(state.timer);
     if (!state.slideshow) return;
+    var delay = state.album && state.album.kind === 'book'
+      ? CONFIG.bookSlideshowDelay
+      : CONFIG.slideshowDelay;
     state.timer = window.setTimeout(function () {
       if (!state.isOpen || state.animating) { scheduleSlideshow(); return; }
       goTo(state.index + 1, 'next');
-    }, CONFIG.slideshowDelay);
+    }, delay);
   }
 
   function toggleSlideshow(force) {
@@ -698,32 +840,38 @@
   }
 
   /* --- open / close ------------------------------------------------- */
-  function openAlbum(id, index) {
-    history.pushState(null, '', '#album/' + id + '/' + (index + 1));
-    openViewer(id, index);
+  function openCollection(collection, index, slideshow) {
+    if (!collection) return;
+    history.pushState(null, '', '#' + collection.kind + '/' + collection.id + '/' + (index + 1));
+    openViewer(collection, index);
+    if (slideshow) toggleSlideshow(true);
   }
 
-  function openViewer(id, index) {
-    var album = albumById(id);
-    if (!album || !album.photos.length) return;
+  function openAlbum(id, index) { openCollection(albumCollection(id), index); }
 
-    // Already inside this album — treat as a jump rather than a reopen.
-    if (state.isOpen && state.album && state.album.id === id) {
+  function openBook(id, index, slideshow) { openCollection(bookCollection(id), index || 0, slideshow); }
+
+  function openViewer(collection, index) {
+    if (!collection || !collection.photos.length) return;
+
+    // Already inside this collection — treat as a jump rather than a reopen.
+    if (state.isOpen && state.album && state.album.id === collection.id &&
+        state.album.kind === collection.kind) {
       if (index !== state.index) goTo(index, index > state.index ? 'next' : 'prev');
       return;
     }
 
-    state.album = album;
-    state.photos = album.photos;
-    state.index = clamp(index, 0, album.photos.length - 1);
+    state.album = collection;
+    state.photos = collection.photos;
+    state.index = clamp(index, 0, collection.photos.length - 1);
     state.isOpen = true;
     state.animating = false;
     state.stripBuiltFor = null;
     state.slideshow = false;
     clearTimeout(state.timer);
 
-    els.viewerAlbum.textContent = album.title;
-    els.viewerTotal.textContent = String(album.photos.length);
+    els.viewerAlbum.textContent = collection.title;
+    els.viewerTotal.textContent = String(collection.photos.length);
     els.viewerIndex.textContent = String(state.index + 1);
     els.btnSlideshow.setAttribute('aria-pressed', 'false');
     els.flip.classList.remove('is-on');
@@ -772,14 +920,19 @@
 
   /* --- hash routing so a page can be shared / bookmarked ------------ */
   function hashTarget() {
-    var match = /^#album\/([a-z]+)(?:\/(\d+))?$/.exec(window.location.hash);
+    var match = /^#(album|book)\/([a-z0-9-]+)(?:\/(\d+))?$/.exec(window.location.hash);
     if (!match) return null;
-    return { id: match[1], index: (parseInt(match[2], 10) || 1) - 1 };
+    return {
+      kind: match[1],
+      id: match[2],
+      index: (parseInt(match[3], 10) || 1) - 1
+    };
   }
 
   function syncFromHash() {
     var target = hashTarget();
-    if (target && albumById(target.id)) openViewer(target.id, target.index);
+    var collection = target ? collectionFor(target.kind, target.id) : null;
+    if (collection) openViewer(collection, target.index);
     else closeViewer();
   }
 
@@ -814,6 +967,10 @@
         case 's': case 'S': toggleSlideshow(); break;
         case 'g': case 'G': toggleFilmstrip(); break;
         case 'v': case 'V': toggleFullscreen(); break;
+        case 'd': case 'D':
+          // Printed albums only — the button is hidden for photo albums.
+          if (els.btnDownload && !els.btnDownload.hidden) { event.preventDefault(); els.btnDownload.click(); }
+          break;
         default: break;
       }
     });
@@ -843,7 +1000,7 @@
     }
   }
 
-  /* ---------- 10. mobile menu --------------------------------------- */
+  /* ---------- 11. mobile menu --------------------------------------- */
   function initNavMenu() {
     var burger = q('#navBurger');
     var menu = q('#navMenu');
@@ -867,11 +1024,12 @@
     });
   }
 
-  /* ---------- 11. boot --------------------------------------------- */
+  /* ---------- 12. boot --------------------------------------------- */
   function boot() {
     cacheEls();
     buildPetals();
     buildAlbumCards();
+    buildBookCards();
     buildFilms();
     buildStats();
     initReveal();
@@ -893,8 +1051,7 @@
       initViewerInput();
       window.addEventListener('hashchange', syncFromHash);
       window.addEventListener('popstate', syncFromHash);
-      var initial = hashTarget();
-      if (initial && albumById(initial.id)) openViewer(initial.id, initial.index);
+      if (hashTarget()) syncFromHash();
     }
   }
 
