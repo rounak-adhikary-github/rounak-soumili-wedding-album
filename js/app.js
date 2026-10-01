@@ -13,7 +13,12 @@
     // A printed album page carries a whole spread, so it needs longer on screen
     // than a single photograph.
     bookSlideshowDelay: 6800,
-    coverAspect: 0.8 // album cards are 4:5, so pick a cover that crops well
+    coverAspect: 0.8, // album cards are 4:5, so pick a cover that crops well
+    /* The miniature photograph inside the brand ring at the very top of the
+       page. With no index it borrows whichever portrait the Bride's Side card
+       chose as its cover; point it anywhere with `index`, or at your own file
+       with `src`. */
+    brandPhoto: { album: 'bride', index: null, src: null }
   };
 
   var FILMS = [
@@ -260,6 +265,33 @@
       if (delta < bestDelta) { bestDelta = delta; best = photo; }
     });
     return best;
+  }
+
+  /* The brand ring is decorative — the link is labelled by its text — so the
+     শ monogram underneath just stays as the fallback until this lands. */
+  function buildBrandPhoto() {
+    var ring = q('#brandPhoto');
+    if (!ring) return;
+    var img = q('img', ring);
+    if (!img) return;
+
+    var photo = CONFIG.brandPhoto || {};
+    var src = photo.src;
+    if (!src) {
+      var album = albumById(photo.album);
+      if (album && album.photos.length) {
+        if (photo.index === null || photo.index === undefined) {
+          src = coverFor(album).thumb;
+        } else {
+          var index = clamp(Math.round(photo.index), 0, album.photos.length - 1);
+          src = album.photos[index].thumb;
+        }
+      }
+    }
+    if (!src) return;
+
+    img.addEventListener('load', function () { img.classList.add('is-ready'); });
+    img.src = src;
   }
 
   function buildAlbumCards() {
@@ -1028,6 +1060,7 @@
   function boot() {
     cacheEls();
     buildPetals();
+    buildBrandPhoto();
     buildAlbumCards();
     buildBookCards();
     buildFilms();

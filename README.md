@@ -16,6 +16,7 @@ or push it to GitHub Pages for free.
 | **Printed albums** | The photographers' two PDFs — Bride's Album (58 reading pages) and Groom's Album (44) — to read page by page, play as a slideshow, or download |
 | **The flip** | The outgoing page hinges around its left edge in 3D, revealing the next photograph underneath, and shows its blank reverse as it swings past edge-on — forwards *and* backwards. The leaf itself is black with an even gilded frame, so the photographs carry all the contrast |
 | **Films** | 6 videos that play inline on click, each also linking to YouTube |
+| **A miniature photograph** | the gold circle beside the brand at the top of the page holds a photo from the albums, ringed in gold, and the শ monogram stays underneath until it loads |
 | **Effects** | Blur-up image loading, scroll reveals, parallax, drifting marigold petals, a custom gold cursor you can switch off, hash-routed deep links |
 | **Weight** | ~125 MB total (2.6 GB of originals and a 780 MB pair of PDFs, compressed for the web) |
 
@@ -148,6 +149,7 @@ breaks on a missing file.
 | Videos shown | `FILMS` in `js/app.js` — add or remove `{ id, title, sub }` using the YouTube video id. Add `thumb: 'hq'` if the upload has no high-resolution thumbnail (the site falls back on its own, this just avoids a needless 404) |
 | Slideshow speed | `CONFIG.slideshowDelay` for photographs and `CONFIG.bookSlideshowDelay` for printed album pages, in `js/app.js` (milliseconds) |
 | Album card cover photo | `CONFIG.coverAspect` in `js/app.js` — the card picks whichever early photo crops best to that shape |
+| Photo in the brand circle | `CONFIG.brandPhoto` in `js/app.js` — `{ album: 'groom', index: 42 }` to borrow a photograph from an album, or `{ src: 'assets/photos/...' }` to use your own file. Leave `index` null and it keeps the portrait the Bride's Side card picked as its cover. To find an index, open `#album/bride/12` — the viewer numbers the photographs for you |
 | Instagram handle | the footer link in `index.html` and `CONFIG.instagram` in `js/app.js` |
 | Hero wording | the `.hero` section of `index.html` (currently "শুভ বিবাহ / Our Wedding Album") |
 | Colours | the custom properties at the top of `css/style.css` |

@@ -162,11 +162,30 @@ body.cursor-live button { cursor: none; }
 
 .nav__brand { display: flex; align-items: center; gap: .7rem; }
 .nav__monogram {
+  position: relative; overflow: hidden;
   width: 40px; height: 40px; flex: 0 0 40px; border-radius: 50%;
   display: grid; place-items: center;
   font-family: var(--font-bn); font-size: 1.15rem; color: var(--wine-950);
   background: var(--gold-grad);
   box-shadow: 0 0 0 1px rgba(253, 245, 221, .5), 0 8px 22px -12px rgba(242, 163, 60, .9);
+  transition: box-shadow .45s, transform .5s var(--ease-out);
+}
+/* A miniature photograph sits inside the brand ring once it has loaded. The শ
+   monogram stays underneath as both the fallback and the moment before the
+   photograph fades in, so the circle is never empty. */
+.nav__monogram img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; object-position: center 30%;
+  opacity: 0; transition: opacity .55s ease;
+}
+.nav__monogram img.is-ready { opacity: 1; }
+.nav__monogram::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(253, 245, 221, .5), inset 0 -6px 12px -6px rgba(20, 4, 10, .45);
+}
+.nav__brand:hover .nav__monogram {
+  transform: scale(1.07);
+  box-shadow: 0 0 0 1px rgba(244, 223, 164, .95), 0 0 0 3px rgba(217, 171, 74, .3), 0 10px 26px -12px rgba(242, 163, 60, 1);
 }
 .nav__brandtext { display: flex; flex-direction: column; line-height: 1.1; }
 .nav__brandtext strong { font-family: var(--font-bn); font-weight: 600; font-size: 1.08rem; color: var(--gold-pale); }
